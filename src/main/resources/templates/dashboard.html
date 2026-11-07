@@ -156,6 +156,23 @@
         </div>
     </div>
 
+    
+<h2>Add Login Event</h2>
+
+<form id="eventForm">
+    <input type="text" id="username" placeholder="Username" required>
+
+    <input type="text" id="ipAddress" placeholder="IP Address" required>
+
+    <select id="status" required>
+        <option value="SUCCESS">SUCCESS</option>
+        <option value="FAILED">FAILED</option>
+    </select>
+
+    <button type="submit">Add Event</button>
+</form>
+
+
     <section>
         <h2>🚨 Security Alerts</h2>
         <div id="alerts">
@@ -212,14 +229,33 @@ async function loadDashboard() {
     `).join('');
 
     document.getElementById('alerts').innerHTML = alerts.length
-        ? alerts.map(a => `
-            <div class="alert">
-                Failed login: <strong>${a.username}</strong>
-                from ${a.ipAddress}
-            </div>
-        `).join('')
-        : '<p>No alerts available.</p>';
+    ? alerts.map(a => `<div class="alert">${a}</div>`).join('')
+    : '<p>No suspicious activity detected.</p>';
 }
+
+
+document.getElementById('eventForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const event = {
+        username: document.getElementById('username').value,
+        ipAddress: document.getElementById('ipAddress').value,
+        status: document.getElementById('status').value
+    };
+
+    await fetch('/api/events', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(event)
+    });
+
+    document.getElementById('eventForm').reset();
+
+    loadDashboard();
+});
+
 
 loadDashboard();
 </script>

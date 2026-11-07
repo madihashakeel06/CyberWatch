@@ -28,10 +28,29 @@ public class LoginController {
         return event;
     }
 
-    @GetMapping("/alerts")
-    public List<LoginEvent> getAlerts() {
-        return events.stream()
-                .filter(event -> event.getStatus().equalsIgnoreCase("FAILED"))
-                .toList();
+    
+@GetMapping("/alerts")
+public List<String> getAlerts() {
+    List<String> alerts = new ArrayList<>();
+
+    for (LoginEvent event : events) {
+        long failedCount = events.stream()
+    .filter(e -> e.getIpAddress().equalsIgnoreCase(event.getIpAddress()))
+    .filter(e -> e.getStatus().equalsIgnoreCase("FAILED"))
+    .count();
+
+        if (failedCount >= 3) {
+            String alert = "BRUTE FORCE DETECTED: IP "
+                + event.getIpAddress()
+                + " has " + failedCount + " failed attempts";
+
+            if (!alerts.contains(alert)) {
+                alerts.add(alert);
+            }
+        }
     }
+
+    return alerts;
+}
+
 }
