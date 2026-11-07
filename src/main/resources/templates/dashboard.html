@@ -1,0 +1,227 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberWatch | Security Monitoring</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0b1120;
+            color: #e5e7eb;
+            font-family: Arial, sans-serif;
+        }
+
+        header {
+            background: #111827;
+            padding: 22px 35px;
+            border-bottom: 1px solid #263244;
+        }
+
+        header h1 {
+            color: #38bdf8;
+        }
+
+        header p {
+            color: #94a3b8;
+            margin-top: 8px;
+        }
+
+        main {
+            padding: 30px;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        .card {
+            background: #172033;
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid #263244;
+        }
+
+        .card h3 {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        .card h2 {
+            font-size: 32px;
+            margin-top: 15px;
+        }
+
+        .blue { color: #38bdf8; }
+        .green { color: #4ade80; }
+        .red { color: #f87171; }
+        .orange { color: #fb923c; }
+
+        section {
+            background: #172033;
+            padding: 25px;
+            margin-top: 25px;
+            border-radius: 12px;
+            border: 1px solid #263244;
+        }
+
+        section h2 {
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #263244;
+        }
+
+        th {
+            color: #94a3b8;
+        }
+
+        .status {
+            color: #f87171;
+            font-weight: bold;
+        }
+
+        .success {
+            color: #4ade80;
+            font-weight: bold;
+        }
+
+        .alert {
+            background: #351923;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            border-left: 4px solid #f87171;
+        }
+
+        footer {
+            padding: 25px;
+            text-align: center;
+            color: #64748b;
+        }
+
+        @media(max-width: 800px) {
+            .cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>🛡 CyberWatch</h1>
+    <p>Security Event Monitoring & Suspicious Login Detection</p>
+</header>
+
+<main>
+
+    <div class="cards">
+        <div class="card">
+            <h3>Total Login Attempts</h3>
+            <h2 class="blue" id="total">0</h2>
+        </div>
+
+        <div class="card">
+            <h3>Successful Logins</h3>
+            <h2 class="green" id="successCount">0</h2>
+        </div>
+
+        <div class="card">
+            <h3>Failed Logins</h3>
+            <h2 class="red" id="failed">0</h2>
+        </div>
+
+        <div class="card">
+            <h3>Security Alerts</h3>
+            <h2 class="orange" id="alertCount">0</h2>
+        </div>
+    </div>
+
+    <section>
+        <h2>🚨 Security Alerts</h2>
+        <div id="alerts">
+            <p>No alerts available.</p>
+        </div>
+    </section>
+
+    <section>
+        <h2>📋 Login Activity</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>IP Address</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="events">
+            </tbody>
+        </table>
+    </section>
+
+</main>
+
+
+<footer>CyberWatch Security Monitoring System</footer>
+
+<script>
+async function loadDashboard() {
+    const eventsResponse = await fetch('/api/events');
+    const events = await eventsResponse.json();
+
+    const alertsResponse = await fetch('/api/alerts');
+    const alerts = await alertsResponse.json();
+
+    document.getElementById('total').textContent = events.length;
+
+    document.getElementById('successCount').textContent =
+        events.filter(e => e.status === 'SUCCESS').length;
+
+    document.getElementById('failed').textContent =
+        events.filter(e => e.status === 'FAILED').length;
+
+    document.getElementById('alertCount').textContent = alerts.length;
+
+    document.getElementById('events').innerHTML = events.map(e => `
+        <tr>
+            <td>${e.username}</td>
+            <td>${e.ipAddress}</td>
+            <td class="${e.status === 'SUCCESS' ? 'success' : 'status'}">
+                ${e.status}
+            </td>
+        </tr>
+    `).join('');
+
+    document.getElementById('alerts').innerHTML = alerts.length
+        ? alerts.map(a => `
+            <div class="alert">
+                Failed login: <strong>${a.username}</strong>
+                from ${a.ipAddress}
+            </div>
+        `).join('')
+        : '<p>No alerts available.</p>';
+}
+
+loadDashboard();
+</script>
+</body>
+</html>
