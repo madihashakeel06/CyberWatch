@@ -1,4 +1,26 @@
+
 ---
-- name: Display CyberWatch deployment
-  debug:
-    msg: "CyberWatch deployment started"
+- name: Check Java runtime
+  command: java -version
+  changed_when: false
+
+- name: Create CyberWatch deployment directory
+  file:
+    path: /home/codespace/cyberwatch
+    state: directory
+    mode: '0755'
+
+- name: Copy CyberWatch application JAR
+  copy:
+    src: "{{ playbook_dir }}/../target/cyberwatch-0.0.1-SNAPSHOT.jar"
+    dest: /home/codespace/cyberwatch/app.jar
+    mode: '0644'
+  notify: restart cyberwatch
+
+- name: Start CyberWatch application
+  shell: |
+    nohup java -jar app.jar > app.log 2>&1 &
+    echo $! > app.pid
+  args:
+    chdir: /home/codespace/cyberwatch
+    creates: /home/codespace/cyberwatch/app.pid

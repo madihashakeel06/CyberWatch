@@ -1,4 +1,11 @@
+
 ---
 - name: restart cyberwatch
-  debug:
-    msg: "CyberWatch restart handler triggered"
+  shell: |
+    if [ -f app.pid ]; then
+      kill "$(cat app.pid)" || true
+    fi
+    nohup java -jar app.jar > app.log 2>&1 &
+    echo $! > app.pid
+  args:
+    chdir: /home/codespace/cyberwatch
