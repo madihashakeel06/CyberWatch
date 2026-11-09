@@ -1,0 +1,4 @@
+---
+- name: restart cyberwatch
+  debug:
+    msg: "CyberWatch restart handler triggered"

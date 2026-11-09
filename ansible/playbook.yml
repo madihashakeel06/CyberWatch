@@ -1,0 +1,11 @@
+---
+- name: Deploy CyberWatch
+  hosts: web
+  become: false
+
+  vars:
+    app_name: cyberwatch
+    app_port: 8080
+
+  roles:
+    - cyberwatch

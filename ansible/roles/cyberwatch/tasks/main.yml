@@ -1,0 +1,4 @@
+---
+- name: Display CyberWatch deployment
+  debug:
+    msg: "CyberWatch deployment started"
