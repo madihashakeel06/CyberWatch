@@ -2,7 +2,7 @@
 package com.cyberwatch;
 
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api")
@@ -27,7 +27,7 @@ public class LoginController {
 
     @GetMapping("/alerts")
     public List<String> getAlerts() {
-        List<String> alerts = new java.util.ArrayList<>();
+        List<String> alerts = new ArrayList<>();
 
         for (LoginEvent event : eventStore.getEvents()) {
             long failedCount = eventStore.getEvents().stream()
@@ -48,4 +48,25 @@ public class LoginController {
 
         return alerts;
     }
+
+    @GetMapping("/stats")
+    public Map<String, Long> getStats() {
+        List<LoginEvent> events = eventStore.getEvents();
+
+        long successful = events.stream()
+            .filter(e -> e.getStatus().equalsIgnoreCase("SUCCESS"))
+            .count();
+
+        long failed = events.stream()
+            .filter(e -> e.getStatus().equalsIgnoreCase("FAILED"))
+            .count();
+
+        Map<String, Long> stats = new LinkedHashMap<>();
+        stats.put("totalAttempts", (long) events.size());
+        stats.put("successfulLogins", successful);
+        stats.put("failedLogins", failed);
+
+        return stats;
+    }
 }
+
